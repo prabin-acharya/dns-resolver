@@ -21,3 +21,10 @@ type Header struct {
 	NSCount uint16 // number of authority entries
 	ARCount uint16 // number of resource entries
 }
+
+// https://datatracker.ietf.org/doc/html/rfc1035#section-4.1.2
+type Question struct {
+	QName  string
+	QType  uint16
+	QClass uint16
+}

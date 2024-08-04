@@ -1,4 +1,5 @@
 // https://datatracker.ietf.org/doc/html/rfc1035#section-4.1.1
+// https://datatracker.ietf.org/doc/html/rfc1035#section-4.1.1
 
 package dns
 
@@ -57,6 +58,25 @@ func (h *Header) ToBytes() []byte {
 	binary.BigEndian.PutUint16(bytes[10:12], h.ARCount)
 
 	return bytes
+}
+
+func (h *Header) FromBytes(data []byte) {
+	h.ID = binary.BigEndian.Uint16(data[0:2])
+
+	flags := binary.BigEndian.Uint16(data[2:4])
+	h.QR = flags&0x8000 != 0
+	h.Opcode = uint8((flags >> 11) & 0xF)
+	h.AA = flags&0x0400 != 0
+	h.TC = flags&0x0200 != 0
+	h.RD = flags&0x0100 != 0
+	h.RA = flags&0x0080 != 0
+	h.Z = uint8((flags >> 4) & 0x7)
+	h.Rcode = uint8(flags & 0xF)
+
+	h.QDCount = binary.BigEndian.Uint16(data[4:6])
+	h.ANCount = binary.BigEndian.Uint16(data[6:8])
+	h.NSCount = binary.BigEndian.Uint16(data[8:10])
+	h.ARCount = binary.BigEndian.Uint16(data[10:12])
 }
 
 // 4.1.1. Header section format

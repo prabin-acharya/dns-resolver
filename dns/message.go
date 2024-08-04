@@ -71,7 +71,26 @@ func (h *Header) ToBytes() []byte {
 	return bytes
 }
 
-// convert the Question to its byte representation
+// ResourceRecord represents a DNS resource record
+type ResourceRecord struct {
+	Name     string
+	Type     uint16
+	Class    uint16
+	TTL      uint32
+	RDLength uint16
+	RData    []byte
+}
+
+// DNSMessage represents a complete DNS message
+type DNSMessage struct {
+	Header        Header
+	Questions     []Question
+	Answers       []ResourceRecord
+	AuthorityRRs  []ResourceRecord
+	AdditionalRRs []ResourceRecord
+}
+
+// converts the Question to its byte representation
 func (q *Question) ToBytes() []byte {
 	qname := encodeDomainName(q.QName)
 	bytes := make([]byte, len(qname)+4)
@@ -81,7 +100,7 @@ func (q *Question) ToBytes() []byte {
 	return bytes
 }
 
-// encodeDomainName converts a domain name string to its DNS message format
+// converts a domain name string to its DNS message format
 func encodeDomainName(domain string) []byte {
 	var encoded []byte
 	labels := strings.Split(domain, ".")

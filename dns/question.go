@@ -20,6 +20,7 @@ type Question struct {
 // converts the Question to its byte representation
 func (q *Question) ToBytes() []byte {
 	qname := encodeDomainName(q.Name)
+	// qname := "\x06google\x03com\x00"
 	bytes := make([]byte, len(qname)+4)
 	copy(bytes, qname)
 	binary.BigEndian.PutUint16(bytes[len(qname):len(qname)+2], q.QType)
@@ -52,7 +53,7 @@ func encodeDomainName(name string) string {
 
 func (q *Question) FromBytes(data []byte) (int, error) {
 	var offset int
-	q.Name, offset = decodeDomainName(data)
+	q.QName, offset = decodeDomainName(data)
 	q.QType = binary.BigEndian.Uint16(data[offset : offset+2])
 	q.QClass = binary.BigEndian.Uint16(data[offset+2 : offset+4])
 	return offset + 4, nil

@@ -32,7 +32,7 @@ func main() {
 		Name:   "google.com",
 		QName:  "google.com",
 		QType:  1, // Type A
-		QClass: 1, // Class IN
+		QClass: 1, // Class IN, IN for Internet
 	}
 
 	// Create a new DNS message with the header and question

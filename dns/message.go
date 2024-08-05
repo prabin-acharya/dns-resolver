@@ -16,9 +16,9 @@ func NewDNSMessage(header Header, questions []Question, answers, authorityRRs, a
 	return &DNSMessage{
 		Header:        header,
 		Questions:     questions,
-		Answers:       answers,
-		AuthorityRRs:  authorityRRs,
-		AdditionalRRs: additionalRRs,
+		Answers:       make([]ResourceRecord, 0),
+		AuthorityRRs:  make([]ResourceRecord, 0),
+		AdditionalRRs: make([]ResourceRecord, 0),
 	}
 }
 

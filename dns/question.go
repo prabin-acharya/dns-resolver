@@ -19,7 +19,7 @@ type Question struct {
 
 // converts the Question to its byte representation
 func (q *Question) ToBytes() []byte {
-	qname := encodeDomainName(q.QName)
+	qname := encodeDomainName(q.Name)
 	bytes := make([]byte, len(qname)+4)
 	copy(bytes, qname)
 	binary.BigEndian.PutUint16(bytes[len(qname):len(qname)+2], q.QType)

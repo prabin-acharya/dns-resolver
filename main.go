@@ -12,7 +12,7 @@ func main() {
 
 	// Create a DNS header
 	header := dns.Header{
-		ID:      12345,
+		ID:      5678,
 		QR:      false, // This is a query
 		Opcode:  0,     // Standard query
 		AA:      false,
@@ -39,7 +39,7 @@ func main() {
 	message := dns.NewDNSMessage(header, []dns.Question{question}, nil, nil, nil)
 
 	// Create a DNS client
-	client := dns.NewClient("8.8.8.8:53", 5*time.Second)
+	client := dns.NewDNSClient("8.8.8.8:53", 5*time.Second)
 
 	// Send the query and get the response
 	response, err := client.SendQuery(message)
@@ -51,3 +51,31 @@ func main() {
 	// Print the response
 	fmt.Printf("Response: %+v\n", response)
 }
+
+// // BuildRequest creates a DNS request message
+// func BuildRequest(domain string, qType uint16) *DNSMessage {
+// 	header := Header{
+// 		ID:      1, // Typically, a unique identifier per request
+// 		QR:      false,
+// 		Opcode:  0, // Standard query
+// 		AA:      false,
+// 		TC:      false,
+// 		RD:      true,
+// 		RA:      false,
+// 		Z:       0,
+// 		Rcode:   0,
+// 		QDCount: 1,
+// 		ANCount: 0,
+// 		NSCount: 0,
+// 		ARCount: 0,
+// 	}
+
+// 	question := Question{
+// 		Name:   domain,
+// 		QType:  qType,
+// 		QClass: 1, // IN for the Internet
+// 	}
+
+// 	message := NewDNSMessage(header, []Question{question}, nil, nil, nil)
+// 	return message
+// }

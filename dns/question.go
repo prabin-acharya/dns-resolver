@@ -4,7 +4,9 @@
 package dns
 
 import (
+	"bytes"
 	"encoding/binary"
+	"fmt"
 	"strings"
 )
 
@@ -30,17 +32,6 @@ func (q *Question) ToBytes() []byte {
 
 // encodes the domain name to the DNS message format( specified in RFC 1035)
 
-// func encodeDomainName(name string) []byte {
-//     var encodedName []byte
-//     parts := strings.Split(name, ".")
-//     for _, part := range parts {
-//         encodedName = append(encodedName, byte(len(part)))
-//         encodedName = append(encodedName, part...)
-//     }
-//     encodedName = append(encodedName, 0) // terminating zero
-//     return encodedName
-// }
-
 func encodeDomainName(name string) string {
 	domainParts := strings.Split(name, ".")
 	qname := ""
@@ -64,6 +55,7 @@ func decodeDomainName(data []byte) (string, int) {
 	offset := 0
 
 	for {
+		// here
 		length := int(data[offset])
 		if length == 0 {
 			offset++
@@ -75,6 +67,57 @@ func decodeDomainName(data []byte) (string, int) {
 	}
 
 	return strings.Join(nameParts, "."), offset
+}
+
+func DecodeName(qname string, messageBuf *bytes.Buffer) (string, error) {
+	encoded := []byte(qname)
+	var result bytes.Buffer
+
+	for i := 0; i < len(encoded); {
+		length := int(encoded[i])
+
+		// End of domain name
+		if length == 0 {
+			break
+		}
+
+		// Check for compression pointer
+		if length&0xC0 == 0xC0 {
+			if messageBuf == nil {
+				return "", fmt.Errorf("compression pointer found but no message buffer provided")
+			}
+			offset := int(encoded[i]&0x3F)<<8 | int(encoded[i+1])
+			return decompressName(offset, messageBuf, result)
+		}
+
+		// Regular label
+		i++
+		if i+length > len(encoded) {
+			return "", fmt.Errorf("invalid encoded domain name")
+		}
+		if result.Len() > 0 {
+			result.WriteByte('.')
+		}
+		result.Write(encoded[i : i+length])
+		i += length
+	}
+
+	return result.String(), nil
+}
+
+// decompressName handles decompression of a compressed domain name
+func decompressName(offset int, messageBuf *bytes.Buffer, result bytes.Buffer) (string, error) {
+	messageBytes := messageBuf.Bytes()[offset:]
+	name := appendFromBufferUntilNull(bytes.NewBuffer(messageBytes))
+	decodedName, err := DecodeName(string(name), messageBuf)
+	if err != nil {
+		return "", err
+	}
+	if result.Len() > 0 {
+		result.WriteByte('.')
+	}
+	result.WriteString(decodedName)
+	return result.String(), nil
 }
 
 // 4.1.2. Question section format

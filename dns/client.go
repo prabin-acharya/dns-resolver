@@ -45,7 +45,7 @@ func (c *Client) SendQuery(msg *DNSMessage) (*DNSMessage, error) {
 		return nil, fmt.Errorf("failed to send DNS query: %v", err)
 	}
 
-	// Set a deadline for reading the response
+	// deadline for reading the response
 	conn.SetDeadline(time.Now().Add(c.Timeout))
 
 	// Read the response
@@ -62,34 +62,7 @@ func (c *Client) SendQuery(msg *DNSMessage) (*DNSMessage, error) {
 		return nil, fmt.Errorf("failed to parse DNS response: %v", err)
 	}
 
-	// check if response ID matches request ID
+	// TODO: check if response ID matches request ID
 
 	return response, nil
 }
-
-// // sendDNSQuery sends a DNS query to a server and returns the response.
-// func sendDNSQuery(msg *DNSMessage, server string) ([]byte, error) {
-// 	conn, err := net.Dial("udp", server)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer conn.Close()
-
-// 	query := msg.ToBytes()
-// 	_, err = conn.Write(query)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	conn.SetDeadline(time.Now().Add(5 * time.Second))
-// 	response := make([]byte, 512)
-// 	n, err := conn.Read(response)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return response[:n], nil
-// }
-
-// DNS requests are typically sent to DNS servers using UDP on port 53.
-// DNS servers respond with the requested resource records.

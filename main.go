@@ -12,7 +12,7 @@ func main() {
 
 	// Create a DNS header
 	header := dns.Header{
-		ID:      5678,
+		ID:      5578,
 		QR:      false, // This is a query
 		Opcode:  0,     // Standard query
 		AA:      false,
@@ -44,7 +44,7 @@ func main() {
 	// Send the query and get the response
 	response, err := client.SendQuery(message)
 	if err != nil {
-		fmt.Println("Error:", err)
+		fmt.Printf("Failed to send DNS query: %v\n", err)
 		return
 	}
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/prabin-acharya/dns-resolver/dns"
@@ -9,6 +10,15 @@ import (
 
 func main() {
 	fmt.Println("Hello DNS####")
+
+	if len(os.Args) < 2 {
+		fmt.Println("Error: You need to pass a domain name as argument.")
+		fmt.Println("Usage: go run main.go <domain-name>")
+		return
+	}
+
+	domainName := os.Args[1]
+	fmt.Printf("Querying DNS for domain: %s\n", domainName)
 
 	// Create a DNS header
 	header := dns.Header{
@@ -29,8 +39,8 @@ func main() {
 
 	// Create a DNS question
 	question := dns.Question{
-		Name:   "google.com",
-		QName:  "google.com",
+		Name:   domainName,
+		QName:  domainName,
 		QType:  1, // Type A
 		QClass: 1, // Class IN, IN for Internet
 	}

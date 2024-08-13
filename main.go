@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"time"
@@ -8,8 +9,21 @@ import (
 	"github.com/prabin-acharya/dns-resolver/dns"
 )
 
+type ResourceRecord struct {
+	Name     string
+	Type     uint16
+	Class    uint16
+	TTL      uint32
+	RDLength uint16
+	RData    []byte
+}
+
 func main() {
 	fmt.Println("Hello DNS####")
+
+	// Define the --raw flag
+	rawFlag := flag.Bool("raw", false, "Display the raw DNS response")
+	flag.Parse()
 
 	if len(os.Args) < 2 {
 		fmt.Println("Error: You need to pass a domain name as argument.")
@@ -17,7 +31,7 @@ func main() {
 		return
 	}
 
-	domainName := os.Args[1]
+	domainName := flag.Arg(0)
 	fmt.Printf("Querying DNS for domain: %s\n", domainName)
 
 	// Create a DNS header
@@ -58,8 +72,17 @@ func main() {
 		return
 	}
 
-	// Print the response
-	fmt.Printf("Response: %+v\n", response)
+	//  if the --raw flag is set, print the raw response
+	if *rawFlag {
+		fmt.Printf("DNS Response: \n %+v\n", response)
+		return
+	}
+
+	// else print the formatted response
+	fmt.Println("DNS Response:")
+	for _, rr := range response.Answers {
+		fmt.Println(rr.String())
+	}
 }
 
 // // BuildRequest creates a DNS request message

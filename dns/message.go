@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"net"
 )
 
 // DNSMessage represents a complete DNS message
@@ -157,4 +158,48 @@ func appendFromBufferUntilNull(buf *bytes.Buffer) []byte {
 		}
 	}
 	return data
+}
+
+// String formats a ResourceRecord into a human-readable string.
+func (rr *ResourceRecord) String() string {
+	// Map the Type to a human-readable string
+	var recordType string
+	switch rr.Type {
+	case 1:
+		recordType = "A"
+	case 2:
+		recordType = "NS"
+	case 5:
+		recordType = "CNAME"
+	case 6:
+		recordType = "SOA"
+	case 15:
+		recordType = "MX"
+	case 28:
+		recordType = "AAAA"
+	default:
+		recordType = fmt.Sprintf("Unknown Type (%d)", rr.Type)
+	}
+
+	// Convert RData to a human-readable form
+	rDataStr := rr.RDataString()
+
+	return fmt.Sprintf("Name: %s\nType: %s\nClass: %d\nTTL: %d\nData: %s\n",
+		rr.Name, recordType, rr.Class, rr.TTL, rDataStr)
+}
+
+// RDataString converts RData into a human-readable string depending on the record type.
+func (rr *ResourceRecord) RDataString() string {
+	switch rr.Type {
+	case 1: // A record (IPv4 address)
+		ip := net.IP(rr.RData)
+		return ip.String()
+	case 28: // AAAA record (IPv6 address)
+		ip := net.IP(rr.RData)
+		return ip.String()
+	case 5: // CNAME record
+		return rr.Name
+	default:
+		return fmt.Sprintf("%x", rr.RData)
+	}
 }

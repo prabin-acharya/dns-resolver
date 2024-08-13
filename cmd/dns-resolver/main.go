@@ -6,21 +6,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/prabin-acharya/dns-resolver/dns"
+	"github.com/prabin-acharya/dns-resolver/pkg/client"
+	"github.com/prabin-acharya/dns-resolver/pkg/dns"
 )
 
-type ResourceRecord struct {
-	Name     string
-	Type     uint16
-	Class    uint16
-	TTL      uint32
-	RDLength uint16
-	RData    []byte
-}
-
 func main() {
-	fmt.Println("Hello DNS####")
-
 	// Define the --raw flag
 	rawFlag := flag.Bool("raw", false, "Display the raw DNS response")
 	flag.Parse()
@@ -63,10 +53,10 @@ func main() {
 	message := dns.NewDNSMessage(header, []dns.Question{question}, nil, nil, nil)
 
 	// Create a DNS client
-	client := dns.NewDNSClient("8.8.8.8:53", 5*time.Second)
+	DNSClient := client.NewDNSClient("8.8.8.8:53", 5*time.Second)
 
 	// Send the query and get the response
-	response, err := client.SendQuery(message)
+	response, err := DNSClient.SendQuery(message)
 	if err != nil {
 		fmt.Printf("Failed to send DNS query: %v\n", err)
 		return
@@ -84,31 +74,3 @@ func main() {
 		fmt.Println(rr.String())
 	}
 }
-
-// // BuildRequest creates a DNS request message
-// func BuildRequest(domain string, qType uint16) *DNSMessage {
-// 	header := Header{
-// 		ID:      1, // Typically, a unique identifier per request
-// 		QR:      false,
-// 		Opcode:  0, // Standard query
-// 		AA:      false,
-// 		TC:      false,
-// 		RD:      true,
-// 		RA:      false,
-// 		Z:       0,
-// 		Rcode:   0,
-// 		QDCount: 1,
-// 		ANCount: 0,
-// 		NSCount: 0,
-// 		ARCount: 0,
-// 	}
-
-// 	question := Question{
-// 		Name:   domain,
-// 		QType:  qType,
-// 		QClass: 1, // IN for the Internet
-// 	}
-
-// 	message := NewDNSMessage(header, []Question{question}, nil, nil, nil)
-// 	return message
-// }

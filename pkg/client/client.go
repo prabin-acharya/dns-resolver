@@ -1,9 +1,11 @@
-package dns
+package client
 
 import (
 	"fmt"
 	"net"
 	"time"
+
+	"github.com/prabin-acharya/dns-resolver/pkg/dns"
 )
 
 // Client represents a DNS client.
@@ -21,7 +23,7 @@ func NewDNSClient(serverIPAddr string, timeout time.Duration) *Client {
 }
 
 // SendQuery sends a DNS query and returns the response.
-func (c *Client) SendQuery(msg *DNSMessage) (*DNSMessage, error) {
+func (c *Client) SendQuery(msg *dns.DNSMessage) (*dns.DNSMessage, error) {
 
 	// // Resolve the UDP address
 	// udpAddr, err := net.ResolveUDPAddr("udp", c.ServerIPAddress)
@@ -56,7 +58,7 @@ func (c *Client) SendQuery(msg *DNSMessage) (*DNSMessage, error) {
 	}
 
 	// Parse the response bytes into a DNSMessage
-	response := &DNSMessage{}
+	response := &dns.DNSMessage{}
 	err = response.FromBytes(responseBytes[:n])
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse DNS response: %v", err)

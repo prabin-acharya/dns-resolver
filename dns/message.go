@@ -40,9 +40,11 @@ func (m *DNSMessage) ToBytes() []byte {
 
 // FromBytes parses a byte slice into a DNSMessage.
 func (m *DNSMessage) FromBytes(data []byte) error {
+	// Parse Header
 	m.Header.FromBytes(data[:12])
 	offset := 12
 
+	// Parse Questions
 	m.Questions = make([]Question, m.Header.QDCount)
 	for i := 0; i < int(m.Header.QDCount); i++ {
 		q := &m.Questions[i]
@@ -64,29 +66,30 @@ func (m *DNSMessage) FromBytes(data []byte) error {
 		offset += int(rr.RDLength) + len(rr.Name) + 10 // name length + fixed fields length
 	}
 
-	// // Parse AuthorityRRs
-	// m.AuthorityRRs = make([]ResourceRecord, m.Header.NSCount)
-	// for i := 0; i < int(m.Header.NSCount); i++ {
-	// 	rr := &m.AuthorityRRs[i]
-	// 	n, err := rr.FromBytes(data[offset:])
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	offset += n
-	// }
+	// Parse AuthorityRRS
+	m.AuthorityRRs = make([]ResourceRecord, m.Header.NSCount)
+	for i := 0; i < int(m.Header.NSCount); i++ {
+		rr, err := ResourceRecordFromBytes(data[offset:], bytes.NewBuffer(data))
+		if err != nil {
+			return err
+		}
+		m.AuthorityRRs[i] = *rr
+		offset += int(rr.RDLength) + len(rr.Name) + 10
+	}
 
-	// // Parse AdditionalRRs
-	// m.AdditionalRRs = make([]ResourceRecord, m.Header.ARCount)
-	// for i := 0; i < int(m.Header.ARCount); i++ {
-	// 	rr := &m.AdditionalRRs[i]
-	// 	n, err := rr.FromBytes(data[offset:])
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	offset += n
-	// }
+	// Parse AdditionalRRs
+	m.AdditionalRRs = make([]ResourceRecord, m.Header.ARCount)
+	for i := 0; i < int(m.Header.ARCount); i++ {
+		rr, err := ResourceRecordFromBytes(data[offset:], bytes.NewBuffer(data))
+		if err != nil {
+			return err
+		}
+		m.AdditionalRRs[i] = *rr
+		offset += int(rr.RDLength) + len(rr.Name) + 10
+	}
 
 	return nil
+
 }
 
 // ResourceRecord represents a DNS resource record
